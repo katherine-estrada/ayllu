@@ -7,7 +7,68 @@
  * @package aylludev
  */
 
+ ?>
+
+
+<?php
+
+ // Get the Client IP Address PHP Function
+function get_ip_address() {
+    $ip_address = '';
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])){
+        $ip_address = $_SERVER['HTTP_CLIENT_IP']; // Get the shared IP Address
+    }else if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+        //Check if the proxy is used for IP/IPs
+        // Split if multiple IP addresses exist and get the last IP address
+        if (strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') !== false) {
+            $multiple_ips = explode(",", $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ip_address = trim(current($multiple_ips));
+        }else{
+            $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+    }else if(!empty($_SERVER['HTTP_X_FORWARDED'])){
+        $ip_address = $_SERVER['HTTP_X_FORWARDED'];
+    }else if(!empty($_SERVER['HTTP_FORWARDED_FOR'])){
+        $ip_address = $_SERVER['HTTP_FORWARDED_FOR'];
+    }else if(!empty($_SERVER['HTTP_FORWARDED'])){
+        $ip_address = $_SERVER['HTTP_FORWARDED'];
+    }else{
+        $ip_address = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip_address;
+}
+
 ?>
+
+<h1 class="text-dark">Con estadisticas</h1>
+<script>
+
+jQuery(document).ready(function ($) {
+
+	postId = <?php the_ID(); ?>;
+    tema = "<?php echo get_ip_address(); ?>";
+    // Envio los datos para que se guarde la información de la canción
+    $.ajax({
+        url: "/ayllu/wp-content/themes/aylludev/captura.php",
+        type: "POST",
+        dataType: "json",	
+        data: JSON.stringify({ campoArtista: postId, campoTema: tema }),
+        contentType: "application/json"
+    });
+
+	$.getJSON( "/ayllu/wp-content/themes/aylludev/post-estadisticas.php?postId=" + postId, function( data ) {
+
+	var PostVisits = data.cantidad;
+	console.log("visitas: "+PostVisits)
+	$("#visitas").html(PostVisits);
+
+	});
+
+})
+
+</script>
+
+<h1  class="text-dark">Page View <span id="visitas"></span> </h1>
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">

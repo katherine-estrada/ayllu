@@ -1,15 +1,6 @@
 jQuery(document).ready(function ($) {
 
-    artista = 1;
-    tema = 3;
-    // Envio los datos para que se guarde la información de la canción
-    $.ajax({
-        url: "/ayllu/wp-content/themes/aylludev/captura.php",
-        type: "POST",
-        dataType: "json",
-        data: JSON.stringify({ campoArtista: artista, campoTema: tema }),
-        contentType: "application/json"
-    });
+   
 
     var cards="";
 
@@ -23,19 +14,18 @@ jQuery(document).ready(function ($) {
         $.each(post, function (postKey, postValue) {
             var primero = "";
 
-            // console.log("contador: "+contador);
-            
-            // if(contador==0){
-            //     primero = '';
+           
 
-            // }
+           
+
+              
             console.log("primeroCSS: "+primero);
            
             var medias = $.get('/ayllu/wp-json/wp/v2/media/' + postValue.featured_media).done(function (media, status) {
                 var img = media.guid['rendered'];
                 //console.log(img);
                 // Construir el cards
-                var card = '<div class="option' + primero + '" style="--optionBackground:url(' + img + ');"><div class="shadow"></div><div class="label"><div class="icon"><i class="fa-solid fa-laptop-code"></i></div><div class="info"><div class="main">' + postValue.title['rendered'] + '</div><div class="sub">' + postValue.date + '</div></div></div></div>';
+                var card = '<div class="option' + primero + '" style="--optionBackground:url(' + img + ');"><div class="shadow"></div><div class="label"><div class="icon"><i class="fa-solid fa-laptop-code"></i></div><div class="info"><div class="main"><a href="' + postValue.link + '">' + postValue.title['rendered'] + '</a></div><div class="sub">' + postValue.date + '</div> <div><h2 id="visit' + postValue.id + '"></h2></div>  </div></div></div>';
 
                 cards=cards+card;
                 $('#relacionadas').append(card);
@@ -48,16 +38,24 @@ jQuery(document).ready(function ($) {
 
             $.when( medias ).done(function ( v1, v2 ) {
                 
-                 //$('#relacionadas').append(cards);
-    //              console.log("when medias: "+cards);
+                        //$('#relacionadas').append(cards);
+            //              console.log("when medias: "+cards);
 
-    //              var primero = $(".option");
+            //              var primero = $(".option");
 
-    //    console.log(primero);
-        $(".option").removeClass("active");
-        $(".option").first().addClass("active");
+            //    console.log(primero);
+                $(".option").removeClass("active");
+                $(".option").first().addClass("active");
 
-        });
+                $.getJSON( "/ayllu/wp-content/themes/aylludev/post-estadisticas.php?postId=" + postValue.id, function( data ) {
+
+                    var PostVisits = data.cantidad;
+                    console.log(PostVisits)
+                    $('#visit'+ postValue.id).html(PostVisits).show();
+                   
+                  });
+
+                });
 
             });
         });
