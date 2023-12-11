@@ -1,5 +1,16 @@
 jQuery(document).ready(function ($) {
 
+    artista = 1;
+    tema = 3;
+    // Envio los datos para que se guarde la información de la canción
+    $.ajax({
+        url: "/ayllu/wp-content/themes/aylludev/captura.php",
+        type: "POST",
+        dataType: "json",
+        data: JSON.stringify({ campoArtista: artista, campoTema: tema }),
+        contentType: "application/json"
+    });
+
     var cards="";
 
      // Conectarse al Api rest
